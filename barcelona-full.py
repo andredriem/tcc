@@ -88,7 +88,7 @@ barcelona_dataset= barcelona_dataset.drop(['Y','M','D'], axis=1)
 barcelona_dataset.to_csv('barcelona-data-sets/refined.csv')
 
 
-barcelona_dataset.drop(barcelona_dataset.tail(60).index,inplace=True)
+#barcelona_dataset.drop(barcelona_dataset.tail(60).index,inplace=True)
 
 print(barcelona_dataset)
 
@@ -133,7 +133,7 @@ barcelona_dataset =pd.DataFrame(
     columns=barcelona_dataset.columns)
 """
 
-train=barcelona_dataset.head(int(len(barcelona_dataset)*(80/100)))
+train=barcelona_dataset.head(int(len(barcelona_dataset)*(70/100)))
 train_labels = train['Victims']
 train_input = train.drop('Victims', axis=1)
 
@@ -141,7 +141,7 @@ test=barcelona_dataset.drop(train.index)
 test_labels = test['Victims']
 test_input = test.drop('Victims', axis=1)
 
-n_input = 7
+n_input = 10
 b_size = 32
 n_features = train_input.shape[1]
 
@@ -157,8 +157,12 @@ for i in range(len(generator)):
 """
 
 model = Sequential()
-model.add(layers.LSTM(8, activation='relu', input_shape=(n_input, n_features)))
-model.add(Dense(1))
+model.add(layers.LSTM(16, activation='sigmoid', input_shape=(n_input, n_features)))
+model.add(Dense(16, activation='relu'))
+model.add(Dense(8, activation='relu'))
+model.add(Dense(4, activation='relu'))
+model.add(Dense(2, activation='relu'))
+model.add(Dense(1, activation='relu'))
 model.compile(optimizer='adam', loss='mae')
 # fit model
 model.fit_generator(generator, epochs=200, use_multiprocessing=True )
