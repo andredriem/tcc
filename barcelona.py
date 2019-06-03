@@ -70,7 +70,7 @@ scaler = MinMaxScaler()
 barcelona_dataset['Month'] = scaler.fit_transform(barcelona_dataset['Month'].values.reshape(-1,1))
 
 scaler = MinMaxScaler()
-barcelona_dataset['Weekday'] = scaler.fit_transform(barcelona_dataset['Month'].values.reshape(-1,1))
+barcelona_dataset['Weekday'] = scaler.fit_transform(barcelona_dataset['Weekday'].values.reshape(-1,1))
 
 
 #print(barcelona_dataset.to_string())
