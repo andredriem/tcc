@@ -41,7 +41,7 @@ print("TAIL:")
 print(barcelona_dataset.tail(1))
 barcelona_dataset_2 = barcelona_dataset.copy()
 
-for label in ['Weekday']:
+for label in ['Weekday', 'District Name']:
     le = preprocessing.LabelEncoder()
     le.fit(barcelona_dataset[label])
     barcelona_dataset[label] = le.transform(barcelona_dataset[label])
@@ -50,11 +50,11 @@ for label in ['Weekday']:
 # 'District Name','Neighborhood Name'
 
 print("TAIL PRE GROUPBY:")
-print(barcelona_dataset.groupby(['Year','Month','Day'], sort=False)['Victims'].apply(list))
-barcelona_dataset = barcelona_dataset.groupby(['Year','Month','Day'], sort=False)['Victims'].apply(list).reset_index()
+print(barcelona_dataset.groupby(['Year','Month','Day','District Name'], sort=False)['Victims'].apply(list))
+barcelona_dataset = barcelona_dataset.groupby(['Year','Month','Day','District Name'], sort=False)['Victims'].apply(list).reset_index()
 print("TAIL WITH 2018:")
 print(barcelona_dataset.tail())
-barcelona_dataset_2 = barcelona_dataset_2.groupby(['Year','Month','Day'])['Weekday'].apply(lambda x: list(x)[0]).reset_index()
+barcelona_dataset_2 = barcelona_dataset_2.groupby(['Year','Month','Day','District Name'])['Weekday'].apply(lambda x: list(x)[0]).reset_index()
 
 for i, row in barcelona_dataset.iterrows():
     barcelona_dataset.at[i, 'Victims'] = len(barcelona_dataset.at[i, 'Victims'])
@@ -81,7 +81,7 @@ print("FINAL TAIL WITH 2018", barcelona_dataset.tail())
 
 print(barcelona_dataset_2[['Month','Day','Weekday']])
 barcelona_dataset = pd.merge(barcelona_dataset, weather,  how='left', left_on=['Year','Month','Day'], right_on = ['Y','M','D'])
-barcelona_dataset = pd.merge(barcelona_dataset, barcelona_dataset_2[['Year','Month','Day','Weekday']],  how='left', left_on=['Year','Month','Day'], right_on = ['Year','Month','Day'])
+barcelona_dataset = pd.merge(barcelona_dataset, barcelona_dataset_2[['Year','Month','Day','Weekday']],  how='left', left_on=['Year','Month','Day'], right_on = ['Year','Month','Day', 'District Name'])
 barcelona_dataset= barcelona_dataset.drop(['Y','M','D'], axis=1)
 barcelona_dataset = pd.merge(barcelona_dataset, holidays,  how='left', left_on=['Year','Month','Day'], right_on = ['Y','M','D'])
 barcelona_dataset= barcelona_dataset.drop(['Y','M','D'], axis=1)
@@ -133,7 +133,7 @@ barcelona_dataset =pd.DataFrame(
     columns=barcelona_dataset.columns)
 """
 
-train=barcelona_dataset.head(int(len(barcelona_dataset)*(70/100)))
+train=barcelona_dataset.head(int(len(barcelona_dataset)*(60/100)))
 train_labels = train['Victims']
 train_input = train.drop('Victims', axis=1)
 
@@ -141,8 +141,8 @@ test=barcelona_dataset.drop(train.index)
 test_labels = test['Victims']
 test_input = test.drop('Victims', axis=1)
 
-n_input = 10
-b_size = 32
+n_input = 100
+b_size = 32*40
 n_features = train_input.shape[1]
 
 
@@ -157,12 +157,7 @@ for i in range(len(generator)):
 """
 
 model = Sequential()
-model.add(layers.LSTM(16, activation='sigmoid', input_shape=(n_input, n_features)))
-model.add(Dense(16, activation='relu'))
-model.add(Dense(8, activation='relu'))
-model.add(Dense(4, activation='relu'))
-model.add(Dense(2, activation='relu'))
-model.add(Dense(1, activation='relu'))
+model.add(layers.LSTM(32, activation='sigmoid', input_shape=(n_input, n_features)))
 model.compile(optimizer='adam', loss='mae')
 # fit model
 model.fit_generator(generator, epochs=200, use_multiprocessing=True )
