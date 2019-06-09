@@ -113,7 +113,7 @@ barcelona_dataset =pd.DataFrame(
 """
 
 
-train=barcelona_dataset.head(int(len(barcelona_dataset)*(90/100)))
+train=barcelona_dataset.head(int(len(barcelona_dataset)*(70/100)))
 train_labels = train['Victims']
 train_input = train.drop('Victims', axis=1)
 
