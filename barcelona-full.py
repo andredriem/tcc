@@ -12,6 +12,7 @@ from tensorflow.keras import layers
 import tensorflow.keras.backend as K
 from scipy.stats import kendalltau
 from sklearn.preprocessing import MinMaxScaler
+from copy import copy
 
 import calendar
 import concise as c
@@ -75,6 +76,19 @@ scaler = MinMaxScaler()
 barcelona_dataset['Year'] = scaler.fit_transform(barcelona_dataset['Year'].values.reshape(-1,1))
 
 
+last = 9999
+for i, row in barcelona_dataset.iterrows():
+    current = copy(barcelona_dataset.at[i, 'Victims'])
+    if barcelona_dataset.at[i, 'Victims'] > last:
+        barcelona_dataset.at[i, 'Victims'] = 0
+    else:
+        barcelona_dataset.at[i, 'Victims'] = 1
+    last = current
+
+
+
+
+
 print(barcelona_dataset.tail())
 
 #print(barcelona_dataset.to_string())
@@ -98,6 +112,7 @@ barcelona_dataset =pd.DataFrame(
     columns=barcelona_dataset.columns)
 """
 
+
 train=barcelona_dataset.head(int(len(barcelona_dataset)*(90/100)))
 train_labels = train['Victims']
 train_input = train.drop('Victims', axis=1)
@@ -106,7 +121,7 @@ test=barcelona_dataset.drop(train.index)
 test_labels = test['Victims']
 test_input = test.drop('Victims', axis=1)
 
-n_input = 14
+n_input = 7
 b_size =256
 n_features = train_input.shape[1]
 
@@ -120,14 +135,27 @@ for i in range(len(generator)):
 	x, y = generator[i]
 	print('%s => %s' % (x, y))
 """
-
+"""
 model = Sequential()
-model.add(layers.LSTM(256, activation='sigmoid', input_shape=(n_input, n_features)))
-model.add(Dense(8))
+model.add(Dense(512, activation='sigmoid', input_shape=(n_features,)))
+model.add(Dense(1), )
+
+model.compile(optimizer='adam', loss='mae')
+
+history = model.fit(train_input.values, train_labels.values,
+                    batch_size=128,
+                    epochs=10000,
+                    verbose=1,
+                    validation_data=(test_input.values, test_labels.values))
+score = model.evaluate(test_input.values, test_labels.values, verbose=0)
+print('Test loss:', score)
+"""
+model = Sequential()
+model.add(layers.LSTM(128, activation='sigmoid', input_shape=(n_input, n_features)))
 model.add(Dense(1))
-model.compile(optimizer='adam', loss='mse')
+model.compile(optimizer='adam', loss='mae')
 # fit model
-model.fit_generator(generator, epochs=500, use_multiprocessing=True )
+model.fit_generator(generator, epochs=1000, use_multiprocessing=True, validation_data=generator_test )
 
 model.save('model_result.txt')
 
@@ -144,9 +172,12 @@ for series in  TimeseriesGenerator(test_input.values, test_labels.values, length
     print(prediction)
     i += 1
 
+#APAGAR
+scale_coeficient=1
+
 import matplotlib.pyplot as plt
 plt.plot([x[1]*scale_coeficient for x in accuracy_list], color='red')
-plt.plot([x[0]*scale_coeficient for x in accuracy_list])
+plt.plot([round(x[0])*scale_coeficient for x in accuracy_list])
 plt.ylabel('Number of accidents')
 plt.show()
 
