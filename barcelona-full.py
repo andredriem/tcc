@@ -11,86 +11,52 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras import layers
 import tensorflow.keras.backend as K
 from scipy.stats import kendalltau
+from sklearn.preprocessing import MinMaxScaler
 
 import calendar
 import concise as c
 
-barcelona_dataset = pd.read_csv('barcelona-data-sets/accidents_2017.csv')
-barcelona_dataset['Year'] = 2017
-barcelona_2018 = pd.read_csv('barcelona-data-sets/2018_accidents.csv')
-barcelona_2018['Year'] = 2018
+barcelona_dataset = pd.read_csv('traffic2010-2018/full_refined.csv')
 
-barcelona_dataset = pd.concat([barcelona_dataset,barcelona_2018])
-
-print("TAIL:")
-print(barcelona_dataset.tail(1))
-
-def month(x):
-    try:
-        return d[x]
-    except:
-        return x
-
-
-
-
-
-d = dict((v,k) for k,v in enumerate(calendar.month_name))
-barcelona_dataset['Month'] = barcelona_dataset['Month'].apply(month)
-print("TAIL:")
-print(barcelona_dataset.tail(1))
-barcelona_dataset_2 = barcelona_dataset.copy()
-
-for label in ['Weekday', 'District Name']:
+for label in ['Weekday']:
     le = preprocessing.LabelEncoder()
     le.fit(barcelona_dataset[label])
     barcelona_dataset[label] = le.transform(barcelona_dataset[label])
-    barcelona_dataset_2[label] = barcelona_dataset[label]
 
 # 'District Name','Neighborhood Name'
 
 print("TAIL PRE GROUPBY:")
-print(barcelona_dataset.groupby(['Year','Month','Day','District Name'], sort=False)['Victims'].apply(list))
-barcelona_dataset = barcelona_dataset.groupby(['Year','Month','Day','District Name'], sort=False)['Victims'].apply(list).reset_index()
-print("TAIL WITH 2018:")
-print(barcelona_dataset.tail())
-barcelona_dataset_2 = barcelona_dataset_2.groupby(['Year','Month','Day','District Name'])['Weekday'].apply(lambda x: list(x)[0]).reset_index()
+barcelona_dataset = barcelona_dataset.groupby(['Year','Month','Day','Weekday'], sort=False)['Victims'].apply(list).reset_index()
 
 for i, row in barcelona_dataset.iterrows():
     barcelona_dataset.at[i, 'Victims'] = len(barcelona_dataset.at[i, 'Victims'])
 
 
 
-
-#barcelona_dataset = barcelona_dataset[barcelona_dataset['District Name'] == 0]
-
-#print(barcelona_dataset.to_string())
-
-
-weather = pd.read_csv('barcelona-data-sets/weather_full.csv')
-holidays = pd.read_csv('barcelona-data-sets/holidays.csv')
-from sklearn.preprocessing import MinMaxScaler
+weather = pd.read_csv('weather.csv')
+#holidays = pd.read_csv('barcelona-data-sets/holidays.csv')
 
 for column in weather.columns:
     if column not in ['Y','M','D']:
         scaler = MinMaxScaler()
         weather[column] = scaler.fit_transform(weather[column].values.reshape(-1,1))
 
-barcelona_dataset.sort_values(['Year','Month', 'Day'], inplace=True)
-print("FINAL TAIL WITH 2018", barcelona_dataset.tail())
+#barcelona_dataset.sort_values(['Year','Month', 'Day'], inplace=True)
+#print("FINAL TAIL WITH 2018", barcelona_dataset.tail())
 
-print(barcelona_dataset_2[['Month','Day','Weekday']])
+#print(barcelona_dataset_2[['Month','Day','Weekday']])
 barcelona_dataset = pd.merge(barcelona_dataset, weather,  how='left', left_on=['Year','Month','Day'], right_on = ['Y','M','D'])
-barcelona_dataset = pd.merge(barcelona_dataset, barcelona_dataset_2[['Year','Month','Day','Weekday']],  how='left', left_on=['Year','Month','Day'], right_on = ['Year','Month','Day', 'District Name'])
+#barcelona_dataset = pd.merge(barcelona_dataset, barcelona_dataset_2[['Year','Month','Day','Weekday']],  how='left', left_on=['Year','Month','Day'], right_on = ['Year','Month','Day', 'District Name'])
 barcelona_dataset= barcelona_dataset.drop(['Y','M','D'], axis=1)
-barcelona_dataset = pd.merge(barcelona_dataset, holidays,  how='left', left_on=['Year','Month','Day'], right_on = ['Y','M','D'])
-barcelona_dataset= barcelona_dataset.drop(['Y','M','D'], axis=1)
-barcelona_dataset.to_csv('barcelona-data-sets/refined.csv')
+#barcelona_dataset = pd.merge(barcelona_dataset, holidays,  how='left', left_on=['Year','Month','Day'], right_on = ['Y','M','D'])
+#barcelona_dataset= barcelona_dataset.drop(['Y','M','D'], axis=1)
+#barcelona_dataset.to_csv('barcelona-data-sets/refined.csv')
 
 
 #barcelona_dataset.drop(barcelona_dataset.tail(60).index,inplace=True)
+#barcelona_dataset = barcelona_dataset.drop([0])
 
-print(barcelona_dataset)
+#print(barcelona_dataset)
 
 victim_scaler = MinMaxScaler()
 first = barcelona_dataset['Victims'][0]
@@ -108,9 +74,8 @@ barcelona_dataset['Weekday'] = scaler.fit_transform(barcelona_dataset['Weekday']
 scaler = MinMaxScaler()
 barcelona_dataset['Year'] = scaler.fit_transform(barcelona_dataset['Year'].values.reshape(-1,1))
 
-scaler = MinMaxScaler()
-barcelona_dataset['Yesterday accidents'] = scaler.fit_transform(barcelona_dataset['Yesterday accidents'].values.reshape(-1,1))
 
+print(barcelona_dataset.tail())
 
 #print(barcelona_dataset.to_string())
 
@@ -120,8 +85,8 @@ barcelona_dataset['Yesterday accidents'] = scaler.fit_transform(barcelona_datase
     le.fit(barcelona_dataset[label])
     barcelona_dataset[label] = le.transform(barcelona_dataset[label])
 """
-for label in barcelona_dataset.columns:
-    barcelona_dataset[label] = barcelona_dataset[label].astype(float)
+#for label in barcelona_dataset.columns:
+#    barcelona_dataset[label] = barcelona_dataset[label].astype(float)
 
 
 """
@@ -133,7 +98,7 @@ barcelona_dataset =pd.DataFrame(
     columns=barcelona_dataset.columns)
 """
 
-train=barcelona_dataset.head(int(len(barcelona_dataset)*(60/100)))
+train=barcelona_dataset.head(int(len(barcelona_dataset)*(90/100)))
 train_labels = train['Victims']
 train_input = train.drop('Victims', axis=1)
 
@@ -141,8 +106,8 @@ test=barcelona_dataset.drop(train.index)
 test_labels = test['Victims']
 test_input = test.drop('Victims', axis=1)
 
-n_input = 100
-b_size = 32*40
+n_input = 14
+b_size =256
 n_features = train_input.shape[1]
 
 
@@ -157,19 +122,20 @@ for i in range(len(generator)):
 """
 
 model = Sequential()
-model.add(layers.LSTM(32, activation='sigmoid', input_shape=(n_input, n_features)))
-model.compile(optimizer='adam', loss='mae')
+model.add(layers.LSTM(256, activation='sigmoid', input_shape=(n_input, n_features)))
+model.add(Dense(8))
+model.add(Dense(1))
+model.compile(optimizer='adam', loss='mse')
 # fit model
-model.fit_generator(generator, epochs=200, use_multiprocessing=True )
+model.fit_generator(generator, epochs=500, use_multiprocessing=True )
 
+model.save('model_result.txt')
 
 accuracy_list = []
 predicted = []
 expected = []
 i = 0
 for series in  TimeseriesGenerator(test_input.values, test_labels.values, length=n_input, batch_size=1):
-    if i== 30:
-        break
     prediction = [model.predict(series[0], verbose=1)[0][0], series[1][0]]
 
     predicted.append(prediction[0])
