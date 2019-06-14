@@ -9,6 +9,7 @@ from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras import layers
+from tensorflow.keras import regularizers
 import tensorflow.keras.backend as K
 from scipy.stats import kendalltau
 from sklearn.preprocessing import MinMaxScaler
@@ -75,22 +76,6 @@ barcelona_dataset['Weekday'] = scaler.fit_transform(barcelona_dataset['Weekday']
 scaler = MinMaxScaler()
 barcelona_dataset['Year'] = scaler.fit_transform(barcelona_dataset['Year'].values.reshape(-1,1))
 
-
-last = 9999
-for i, row in barcelona_dataset.iterrows():
-    current = copy(barcelona_dataset.at[i, 'Victims'])
-    if barcelona_dataset.at[i, 'Victims'] > last:
-        barcelona_dataset.at[i, 'Victims'] = 0
-    else:
-        barcelona_dataset.at[i, 'Victims'] = 1
-    last = current
-
-
-
-
-
-print(barcelona_dataset.tail())
-
 #print(barcelona_dataset.to_string())
 
 """for label in ['District Name'
@@ -111,7 +96,7 @@ barcelona_dataset =pd.DataFrame(
     min_max_scaler.fit_transform(barcelona_dataset),
     columns=barcelona_dataset.columns)
 """
-
+barcelona_dataset = barcelona_dataset.drop(["Year"], axis=1)
 
 train=barcelona_dataset.head(int(len(barcelona_dataset)*(70/100)))
 train_labels = train['Victims']
@@ -121,7 +106,7 @@ test=barcelona_dataset.drop(train.index)
 test_labels = test['Victims']
 test_input = test.drop('Victims', axis=1)
 
-n_input = 365
+n_input = 120
 b_size =256
 n_features = train_input.shape[1]
 
@@ -151,7 +136,9 @@ score = model.evaluate(test_input.values, test_labels.values, verbose=0)
 print('Test loss:', score)
 """
 model = Sequential()
-model.add(layers.LSTM(128, activation='sigmoid', input_shape=(n_input, n_features)))
+model.add(layers.LSTM(128, activation='sigmoid',
+    input_shape=(n_input, n_features), kernel_regularizer=regularizers.l2(0.01),
+    activity_regularizer=regularizers.l1(0.01)))
 model.add(Dense(1))
 model.compile(optimizer='adam', loss='mae')
 # fit model
