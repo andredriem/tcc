@@ -106,7 +106,7 @@ test=barcelona_dataset.drop(train.index)
 test_labels = test['Victims']
 test_input = test.drop('Victims', axis=1)
 
-n_input = 7
+n_input = 60
 b_size =32
 n_features = train_input.shape[1]
 
