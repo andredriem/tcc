@@ -136,10 +136,25 @@ score = model.evaluate(test_input.values, test_labels.values, verbose=0)
 print('Test loss:', score)
 """
 model = Sequential()
-model.add(layers.LSTM(128, activation='sigmoid',
+model.add(layers.LSTM(256, activation='sigmoid',
     input_shape=(n_input, n_features), kernel_regularizer=regularizers.l2(0.01),
     activity_regularizer=regularizers.l1(0.01)))
-model.add(Dense(1))
+model.add(Dense(128), kernel_regularizer=regularizers.l2(0.01),
+    activity_regularizer=regularizers.l1(0.01))
+model.add(Dense(64), kernel_regularizer=regularizers.l2(0.01),
+    activity_regularizer=regularizers.l1(0.01))
+model.add(Dense(32), kernel_regularizer=regularizers.l2(0.01),
+    activity_regularizer=regularizers.l1(0.01))
+model.add(Dense(16), kernel_regularizer=regularizers.l2(0.01),
+    activity_regularizer=regularizers.l1(0.01))
+model.add(Dense(8), kernel_regularizer=regularizers.l2(0.01),
+    activity_regularizer=regularizers.l1(0.01))
+model.add(Dense(4), kernel_regularizer=regularizers.l2(0.01),
+    activity_regularizer=regularizers.l1(0.01))
+model.add(Dense(2), kernel_regularizer=regularizers.l2(0.01),
+    activity_regularizer=regularizers.l1(0.01))
+model.add(Dense(1), kernel_regularizer=regularizers.l2(0.01),
+    activity_regularizer=regularizers.l1(0.01))
 model.compile(optimizer='adam', loss='mae')
 # fit model
 
