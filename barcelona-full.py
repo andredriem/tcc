@@ -135,12 +135,16 @@ history = model.fit(train_input.values, train_labels.values,
 score = model.evaluate(test_input.values, test_labels.values, verbose=0)
 print('Test loss:', score)
 """
+
+l1 =  0.00
+l2 = 0.00
+
 model = Sequential()
 model.add(layers.LSTM(256, activation='sigmoid',
-    input_shape=(n_input, n_features), kernel_regularizer=regularizers.l2(0.001),
-    activity_regularizer=regularizers.l1(0.001)),)
-model.add(Dense(1, kernel_regularizer=regularizers.l2(0.001),
-    activity_regularizer=regularizers.l1(0.001), activation='sigmoid'))
+    input_shape=(n_input, n_features), kernel_regularizer=regularizers.l2(l2),
+    activity_regularizer=regularizers.l1(l1)),)
+model.add(Dense(1, kernel_regularizer=regularizers.l2(l2),
+    activity_regularizer=regularizers.l1(l1), activation='sigmoid'))
 model.compile(optimizer='adam', loss='mae')
 # fit model
 
