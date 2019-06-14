@@ -146,7 +146,7 @@ model.add(layers.LSTM(64, activation='sigmoid',
 model.add(layers.LSTM(64, activation='sigmoid', kernel_regularizer=regularizers.l2(l2),
     activity_regularizer=regularizers.l1(l1), return_sequences=True))
 model.add(layers.LSTM(64, activation='sigmoid', kernel_regularizer=regularizers.l2(l2),
-    activity_regularizer=regularizers.l1(l1)),)
+    activity_regularizer=regularizers.l1(l1)), return_sequences=True)
 model.add(layers.LSTM(64, activation='sigmoid', kernel_regularizer=regularizers.l2(l2),
     activity_regularizer=regularizers.l1(l1)),)
 model.add(Dense(1, kernel_regularizer=regularizers.l2(l2),
