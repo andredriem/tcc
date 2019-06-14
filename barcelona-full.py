@@ -149,8 +149,17 @@ model.add(layers.LSTM(128, activation='tanh',
 #    activity_regularizer=regularizers.l1(l1), return_sequences=True))
 model.add(layers.LSTM(128, activation='tanh', 
     activity_regularizer=regularizers.l1(l1)),)
+model.add(Dense(64, kernel_regularizer=regularizers.l2(l2),
+   activity_regularizer=regularizers.l1(l1), activation='tanh'))
+model.add(Dense(32, kernel_regularizer=regularizers.l2(l2),
+   activity_regularizer=regularizers.l1(l1), activation='tanh'))
+model.add(Dense(16, kernel_regularizer=regularizers.l2(l2),
+   activity_regularizer=regularizers.l1(l1), activation='tanh'))
+model.add(Dense(8, kernel_regularizer=regularizers.l2(l2),
+   activity_regularizer=regularizers.l1(l1), activation='tanh'))
 model.add(Dense(1, kernel_regularizer=regularizers.l2(l2),
    activity_regularizer=regularizers.l1(l1), activation='tanh'))
+
 
 my_adam_optimizer = keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
 
