@@ -107,7 +107,7 @@ test_labels = test['Victims']
 test_input = test.drop('Victims', axis=1)
 
 n_input = 120
-b_size =256
+b_size =64
 n_features = train_input.shape[1]
 
 
@@ -142,24 +142,36 @@ model.add(layers.LSTM(128, activation='sigmoid',
 model.add(Dense(1))
 model.compile(optimizer='adam', loss='mae')
 # fit model
-model.fit_generator(generator, epochs=1000, use_multiprocessing=True, validation_data=generator_test )
 
-model.save('model_result.txt')
 
-accuracy_list = []
-predicted = []
-expected = []
-i = 0
-for series in  TimeseriesGenerator(test_input.values, test_labels.values, length=n_input, batch_size=1):
-    prediction = [model.predict(series[0], verbose=1)[0][0], series[1][0]]
+with open('expected.txt', 'w+') as f:
+    f.write(str(test_labels.values))
 
-    predicted.append(prediction[0])
-    expected.append(prediction[1])
-    accuracy_list.append(prediction)
-    print(prediction)
-    i += 1
+training_round = 0
+while training_round < 20:
 
-#APAGAR
+    model.fit_generator(generator, epochs=50, use_multiprocessing=True, validation_data=generator_test )
+
+    accuracy_list = []
+    predicted = []
+    expected = []
+    i = 0
+    for series in  TimeseriesGenerator(test_input.values, test_labels.values, length=n_input, batch_size=1):
+        prediction = [model.predict(series[0], verbose=1)[0][0], series[1][0]]
+
+        predicted.append(prediction[0])
+        expected.append(prediction[1])
+        accuracy_list.append(prediction)
+        print(prediction)
+        i += 1
+
+    with open('round'+str(training_round)+'.txt', 'w+') as f:
+        f.write(str(predicted))
+    
+    training_round += 1
+
+#APAGAR 
+'''
 scale_coeficient=1
 
 import matplotlib.pyplot as plt
@@ -174,6 +186,7 @@ print("Mean Absolute error all list")
 print(sum([abs(p[0] - p[1]) for p in accuracy_list])/len(accuracy_list))
 print("Mean Squared error when input has full size(%(n_input)s)"%locals() )
 print(sum([(p[0] - p[1])**2 for p in accuracy_list[n_input:]])/len(accuracy_list[n_input:]))
+'''
 
 """
 
