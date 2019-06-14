@@ -154,7 +154,7 @@ model.add(Dense(1, kernel_regularizer=regularizers.l2(l2),
 
 my_adam_optimizer = keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
 
-model.compile(optimizer=my_adam_optimizer, loss='mae')
+model.compile(optimizer='Adadelta', loss='mae')
 # fit model
 
 
