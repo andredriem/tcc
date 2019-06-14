@@ -136,8 +136,8 @@ score = model.evaluate(test_input.values, test_labels.values, verbose=0)
 print('Test loss:', score)
 """
 
-l1 =  0.001
-l2 = 0.001
+l1 =  0.0001
+l2 = 0.0001
 
 model = Sequential()
 model.add(layers.LSTM(64, activation='sigmoid',
