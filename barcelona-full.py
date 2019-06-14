@@ -106,7 +106,7 @@ test=barcelona_dataset.drop(train.index)
 test_labels = test['Victims']
 test_input = test.drop('Victims', axis=1)
 
-n_input = 365
+n_input = 30
 b_size =128
 n_features = train_input.shape[1]
 
@@ -149,7 +149,7 @@ model.add(layers.LSTM(32, activation='sigmoid', kernel_regularizer=regularizers.
     activity_regularizer=regularizers.l1(l1)),)
 model.add(Dense(1, kernel_regularizer=regularizers.l2(l2),
     activity_regularizer=regularizers.l1(l1), activation='sigmoid'))
-model.compile(optimizer='adam', loss='mae')
+model.compile(optimizer='adam', loss='mse')
 # fit model
 
 
