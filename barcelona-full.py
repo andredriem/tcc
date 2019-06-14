@@ -151,7 +151,7 @@ model.add(layers.LSTM(128, activation='sigmoid',
     activity_regularizer=regularizers.l1(l1)),)
 model.add(Dense(1, kernel_regularizer=regularizers.l2(l2),
    activity_regularizer=regularizers.l1(l1), activation='sigmoid'))
-model.compile(optimizer='adam', loss='mse')
+model.compile(optimizer='adam', loss='mae')
 # fit model
 
 
