@@ -137,10 +137,10 @@ print('Test loss:', score)
 """
 model = Sequential()
 model.add(layers.LSTM(256, activation='sigmoid',
-    input_shape=(n_input, n_features), kernel_regularizer=regularizers.l2(0.01),
-    activity_regularizer=regularizers.l1(0.01)),)
-model.add(Dense(1, kernel_regularizer=regularizers.l2(0.01),
-    activity_regularizer=regularizers.l1(0.01), activation='sigmoid'))
+    input_shape=(n_input, n_features), kernel_regularizer=regularizers.l2(0.001),
+    activity_regularizer=regularizers.l1(0.001)),)
+model.add(Dense(1, kernel_regularizer=regularizers.l2(0.001),
+    activity_regularizer=regularizers.l1(0.001), activation='sigmoid'))
 model.compile(optimizer='adam', loss='mae')
 # fit model
 
