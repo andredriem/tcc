@@ -140,8 +140,12 @@ l1 =  0.0001
 l2 = 0.0001
 
 model = Sequential()
-model.add(layers.LSTM(128, activation='sigmoid',
+model.add(layers.LSTM(32, activation='sigmoid',
     input_shape=(n_input, n_features), kernel_regularizer=regularizers.l2(l2),
+    activity_regularizer=regularizers.l1(l1), return_sequences=True))
+model.add(layers.LSTM(32, activation='sigmoid', kernel_regularizer=regularizers.l2(l2),
+    activity_regularizer=regularizers.l1(l1), return_sequences=True))
+model.add(layers.LSTM(32, activation='sigmoid', kernel_regularizer=regularizers.l2(l2),
     activity_regularizer=regularizers.l1(l1)),)
 model.add(Dense(1, kernel_regularizer=regularizers.l2(l2),
     activity_regularizer=regularizers.l1(l1), activation='sigmoid'))
