@@ -106,7 +106,7 @@ test=barcelona_dataset.drop(train.index)
 test_labels = test['Victims']
 test_input = test.drop('Victims', axis=1)
 
-n_input = 120
+n_input = 14
 b_size =64
 n_features = train_input.shape[1]
 
@@ -163,7 +163,7 @@ with open('expected.txt', 'w+') as f:
     f.write(str(test_labels.values))
 
 training_round = 0
-while training_round < 20:
+while True:
 
     model.fit_generator(generator, epochs=50, use_multiprocessing=True, validation_data=generator_test )
 
