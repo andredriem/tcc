@@ -106,7 +106,7 @@ test=barcelona_dataset.drop(train.index)
 test_labels = test['Victims']
 test_input = test.drop('Victims', axis=1)
 
-n_input = 30
+n_input = 365
 b_size =128
 n_features = train_input.shape[1]
 
@@ -140,12 +140,14 @@ l1 =  0.0001
 l2 = 0.0001
 
 model = Sequential()
-model.add(layers.LSTM(32, activation='sigmoid',
+model.add(layers.LSTM(64, activation='sigmoid',
     input_shape=(n_input, n_features), kernel_regularizer=regularizers.l2(l2),
     activity_regularizer=regularizers.l1(l1), return_sequences=True))
-model.add(layers.LSTM(32, activation='sigmoid', kernel_regularizer=regularizers.l2(l2),
+model.add(layers.LSTM(64, activation='sigmoid', kernel_regularizer=regularizers.l2(l2),
     activity_regularizer=regularizers.l1(l1), return_sequences=True))
-model.add(layers.LSTM(32, activation='sigmoid', kernel_regularizer=regularizers.l2(l2),
+model.add(layers.LSTM(64, activation='sigmoid', kernel_regularizer=regularizers.l2(l2),
+    activity_regularizer=regularizers.l1(l1)),)
+model.add(layers.LSTM(64, activation='sigmoid', kernel_regularizer=regularizers.l2(l2),
     activity_regularizer=regularizers.l1(l1)),)
 model.add(Dense(1, kernel_regularizer=regularizers.l2(l2),
     activity_regularizer=regularizers.l1(l1), activation='sigmoid'))
